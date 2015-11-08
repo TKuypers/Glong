@@ -91,6 +91,8 @@ var game = {
 //starting the gameloop
 game.init();
 
+
+
 function gameLoop()
 {
     clearMatrix();
@@ -238,7 +240,7 @@ function updateMatrix()
     }
     
     //update paddles
-    for (y = 0; y < 5; y++)
+    for (y = 0; y < 4; y++)
     {
         matrix[redPaddle.posY + y][0] = 1;
         matrix[bluePaddle.posY + y][14] = 2;
@@ -372,6 +374,13 @@ function one_dim_matrix()
     }
 
 */
+
+module.exports = 
+{
+    left: redPaddle,
+    right: bluePaddle
+};
+
 
 function updateScore()
 {

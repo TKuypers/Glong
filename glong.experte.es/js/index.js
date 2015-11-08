@@ -6,8 +6,10 @@ app.run(function($rootScope, $location)
 {
     // set fastclick
     FastClick.attach(document.body);  
-});
 
+    // disable touchmove
+    document.addEventListener('touchmove', function(e){e.preventDefault();}, false);
+});
 
 
 

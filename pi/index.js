@@ -73,6 +73,8 @@ var game =
 
 		game.complete = false;
 		game.playing  = false;
+
+		game.update();
 	},
 
 
@@ -168,7 +170,7 @@ var queue =
 io.on('connection', function (socket) 
 {
 	var id     = helpers.makeId(5);
-	var pos    = false;
+	var pos    = null;
 	var inGame = false;
 
 	// add to the queue
@@ -198,7 +200,8 @@ io.on('connection', function (socket)
 	// update the paddle
 	socket.on('updatePaddle', function(data)
 	{
-		console.log(pos+' updated');
+		//console.log(pos+' updated:'+data.position);
+		glong[pos].posY = data.position;
 	});
 
 
