@@ -49,9 +49,19 @@ var game =
 
 	start : function()
 	{
-		console.log('Game started'+game.left+','+game.right);
-
 		game.complete = true;
+
+		// game can start
+		io.to('game').emit('gamePrepare');
+
+		// countdown to the game
+		setTimeout(function()
+		{
+			game.playing = true;
+			
+			io.to('game').emit('gameStart');
+
+		}, 3000);
 	},
 
 
@@ -59,7 +69,10 @@ var game =
 	{
 		console.log('Game stopped');
 
+		io.to('game').emit('gameStop');
+
 		game.complete = false;
+		game.playing  = false;
 	},
 
 
