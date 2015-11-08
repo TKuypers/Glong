@@ -101,6 +101,7 @@ var game = {
         updateBall();
         updateExplosion();
         updateCounter();
+        updateScore();
         updateMatrix();
         reparseMatrix();
         one_dim_matrix();
@@ -436,6 +437,10 @@ function updateCounter(number)
 
     };
 
+}
+
+function updateScore()
+{
     for (y = 0; y < 10; y++)
     {    
         for (x = 0; x < 6; x++)
@@ -443,18 +448,8 @@ function updateCounter(number)
             matrix[y+5][x+1] = counter1[y][x];
             matrix[y+5][x+8] = counter2[y][x];
         }
-    }        for (y = 0; y < 10; y++)
-    {    
-        for (x = 0; x < 6; x++)
-        {
-            matrix[y+5][x+1] = counter1[y][x];
-            matrix[y+5][x+8] = counter2[y][x];
-        }
     }
-    
 }
-
-
 
     number0 =
     [[5,5,5,5,5,5],
