@@ -88,23 +88,21 @@ var game = {
 };
 
 
-//starting the gameloop
-game.init();
+    //starting the gameloop
+    game.init();
 
-
-
-function gameLoop()
-{
-    clearMatrix();
-    //checkPlayerInput();
-    updateBall();
-    updateCounter();
-    updateScore();
-    updateMatrix();
-    reparseMatrix();
-    one_dim_matrix();
-    translateToLED();
-}
+    function gameLoop()
+    {
+        clearMatrix();
+        //checkPlayerInput();
+        updateBall();
+        updateCounter();
+        updateScore();
+        updateMatrix();
+        reparseMatrix();
+        one_dim_matrix();
+        translateToLED();
+    }
 
 function translateToLED()
 {
@@ -240,7 +238,7 @@ function updateMatrix()
     }
     
     //update paddles
-    for (y = 0; y < 4; y++)
+    for (y = 0; y < 5; y++)
     {
         matrix[redPaddle.posY + y][0] = 1;
         matrix[bluePaddle.posY + y][14] = 2;
@@ -374,13 +372,6 @@ function one_dim_matrix()
     }
 
 */
-
-module.exports = 
-{
-    left: redPaddle,
-    right: bluePaddle
-};
-
 
 function updateScore()
 {
@@ -623,3 +614,12 @@ function updateCounter()
     [0,0,0,0,5,5],
     [5,5,5,5,5,5],
     [5,5,5,5,5,5]];
+
+
+
+
+module.exports = 
+{
+    left: redPaddle,
+    right: bluePaddle
+};
