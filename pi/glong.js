@@ -1,4 +1,4 @@
-var ws281x = require('./../node_modules/rpi-ws281x-native/lib/ws281x-native');
+var ws281x = require('../lib/ws281x-native');
 
 var NUM_LEDS = parseInt(process.argv[2], 10) || 10,
     pixelData = new Uint32Array(NUM_LEDS);
@@ -59,17 +59,21 @@ var matrix =
 
 //create the red & blue paddle & ball
 var redPaddle = {
-    posY: 8
+    posY: 8,
+    length: 4
 };
 var bluePaddle = {
-    posY: 8
+    posY: 8,
+    length: 4
 };
 
 var ball = {
     posX: 7,
     posY: 10,
     speedY: 1,
-    direction: 1
+    direction: 1,
+    steps: 50,
+    speed: 100
 };
 
 //explosion
@@ -81,28 +85,27 @@ var explosion = {
 };
 
 var game = {
-    steps: 10,
+    steps: 50,
     score: 0,
-    fps: 50,
+    fps: 500,
     init: function(){var gameLoopInterval = setInterval(gameLoop, 1000/game.fps);}
 };
 
+    //starting the gameloop
+    game.init();
 
-//starting the gameloop
-game.init();
 
-function gameLoop()
-{
-    clearMatrix();
-    //checkPlayerInput();
-    updateBall();
-    updateCounter();
-    updateScore();
-    updateMatrix();
-    reparseMatrix();
-    one_dim_matrix();
-    translateToLED();
-}
+    function gameLoop()
+    {
+        clearMatrix();
+        updateBall();
+        updateExplosion();
+        updateCounter();
+        updateMatrix();
+        reparseMatrix();
+        one_dim_matrix();
+        translateToLED();
+    }
 
 function translateToLED()
 {
@@ -114,31 +117,7 @@ function translateToLED()
   ws281x.render(pixelData);
 }
 
-/*
-function checkPlayerInput()
-{
-    if (upPressed && redPaddle.posY > 0)
-    {
-        if (keyPressed == false) 
-        {
-            redPaddle.posY--;
-            keyPressed = true;
-        }
-    }
-    else if (downPressed && redPaddle.posY < 15)
-    {
-        if (keyPressed == false)
-        {
-            redPaddle.posY++;
-            keyPressed = true;
-        }
-    }
-    if (downPressed == false && upPressed == false)
-    {
-        keyPressed = false;
-    }
-}
-*/
+
 function updateBall()
 {
     game.steps--;
@@ -151,21 +130,32 @@ function updateBall()
 
 function moveBall()
 {
-       // && ball.posY >= redPaddle.posY && ball.posY < redPaddle.posY+5
-    if ( ball.posX == 1 )
+       
+    if ( ball.posX == 1 && ball.posY >= redPaddle.posY && ball.posY < redPaddle.posY+redPaddle.length )
     {
         ball.direction = 1;
-       // ball.speedY = ball.speedY + ((( redPaddle.posY + 2 ) - ball.posY) * -1);
-       // if (ball.speedY > 2){ball.speedY=2}
-       // if (ball.speedY < -2){ball.speedY=-2}
+        if (ball.posY == redPaddle.posY) {
+            ball.speedY = -1;
+        }
+        else if (ball.posY == redPaddle.posY + (redPaddle.length-1)) {
+            ball.speedY = 1;
+        }
+
         game.score++;
-        game.fps++;
+        ball.speed = ball.speed - 2;
     }
-    if ( ball.posX == 13 )
+    if ( ball.posX == 13 && ball.posY >= bluePaddle.posY && ball.posY < bluePaddle.posY+bluePaddle.length  )
     {
         ball.direction = 0;
+        if (ball.posY == bluePaddle.posY) {
+            ball.speedY = -1;
+        }
+        else if (ball.posY == bluePaddle.posY + (bluePaddle.length-1)) {
+            ball.speedY = 1;
+        }
+
         game.score++;
-        game.fps++;
+        ball.speed = ball.speed - 2;
     }
   
     if ( ball.direction == 1 )
@@ -185,36 +175,56 @@ function moveBall()
         explosion.posY = ball.posY;
         explosion.up = explosion.posY;
         explosion.down = explosion.posY;
+        explosion.left = ball.posX;
+        explosion.right = ball.posX;
         explosion.time = 4;
     }
-
-    if (explosion.time > 0)
+    if ( ball.posX == 14 )
     {
-        explosion.up--;
-        explosion.down++;
-        explosion.left--;
-        explosion.right++;
-
-        explosion.time--;
-    }
-    if (explosion.time == 0)
-    {
-        explosion.up = -1;
-        explosion.down = -1;
-        explosion.left = -1;
-        explosion.right = -1;
+        explosion.posX = 14;
+        explosion.posY = ball.posY;
+        explosion.up = explosion.posY;
+        explosion.down = explosion.posY;
+        explosion.left = ball.posX+1;
+        explosion.right = ball.posX+1;
+        explosion.time = 4;
     }
     
     if ( ball.posY <= 0 || ball.posY >= 19)
     {
         ball.speedY = ball.speedY *-1;
-        console.log("check");
     }
+    
     if ( ball.posY > 19) {
       ball.posY = 19;
     }
     if ( ball.posY < 0 ) {
       ball.posY = 0;
+    }
+}
+
+function updateExplosion() {
+    game.steps--;
+    if (game.steps==0)
+    {
+        if (explosion.time > 0)
+        {
+            explosion.up--;
+            explosion.down++;
+            explosion.left--;
+            explosion.right++;
+
+            explosion.time--;
+        }
+        if (explosion.time == 0)
+        {
+            explosion.up = -1;
+            explosion.down = -1;
+            explosion.left = -1;
+            explosion.right = -1;
+        }
+
+        game.steps = 50;
     }
 }
 
@@ -320,85 +330,20 @@ function one_dim_matrix()
         }
     }
 
-    
 
-
-    /*
-    for(var i = 1; i <= 300; i++)
-    {
-        var k = (i-1);
-
-        if(i <= 20)
-        {
-           one_dim[k] = matrix[k][0];
-        }
-        else
-        {
-           var y = (i%20)-1;
-           var x = ((i-(i%20))/20)-1;
-
-           one_dim[k] = matrix[y][x];
-        }
-    }
-    */
-
-}
-
-
-/*
-
-    function keyDownHandler(e)
-    {
-        if(e.keyCode == 40)
-        {
-            downPressed = true;
-        }
-        else if(e.keyCode == 38)
-        {
-            upPressed = true;
-        }
-    }
-
-    function keyUpHandler(e)
-    {
-        if(e.keyCode == 40)
-        {
-            downPressed = false;
-        }
-        else if(e.keyCode == 38)
-        {
-            upPressed = false;
-        }
-    }
-
-*/
-
-function updateScore()
-{
-    for (y = 0; y < 10; y++)
-    {    
-        for (x = 0; x < 6; x++)
-        {
-            matrix[y+5][x+1] = counter1[y][x];
-            matrix[y+5][x+8] = counter2[y][x];
-        }
-    }
-}
-
-function updateCounter()
+function updateCounter(number)
 {
 
-    if (game.score<10)
+    if (number<10)
     {
-        rightnumber = game.score;
+        rightnumber = number;
         leftnumber = 0;
     }
     else
     {
-        rightnumber = game.score % 10;
-        leftnumber = (game.score - (game.score % 10))/10;
+        rightnumber = number % 10;
+        leftnumber = (number - (number % 10))/10;
     }
-
 
     switch (leftnumber)
     {
@@ -491,6 +436,22 @@ function updateCounter()
 
     };
 
+    for (y = 0; y < 10; y++)
+    {    
+        for (x = 0; x < 6; x++)
+        {
+            matrix[y+5][x+1] = counter1[y][x];
+            matrix[y+5][x+8] = counter2[y][x];
+        }
+    }        for (y = 0; y < 10; y++)
+    {    
+        for (x = 0; x < 6; x++)
+        {
+            matrix[y+5][x+1] = counter1[y][x];
+            matrix[y+5][x+8] = counter2[y][x];
+        }
+    }
+    
 }
 
 
@@ -614,3 +575,6 @@ function updateCounter()
     [0,0,0,0,5,5],
     [5,5,5,5,5,5],
     [5,5,5,5,5,5]];
+
+
+console.log('Press <ctrl>+C to exit.');
