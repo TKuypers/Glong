@@ -168,7 +168,7 @@ var queue =
 
 	updateQueue :  function()
 	{
-		console.log(queue.ids);
+		io.emit('queueUpdate', {queue: queue.ids});
 	},
 };
 
@@ -207,7 +207,7 @@ io.on('connection', function (socket)
 			pos    = data.pos;
 
 			socket.join('game');
-			socket.emit('gameJoined');
+			socket.emit('gameJoined', {pos:pos});
 		}
 	};
 

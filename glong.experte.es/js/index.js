@@ -12,10 +12,12 @@ app.run(function($rootScope, $location)
 
 
 
-    $rootScope.id      = null;
-	$rootScope.inGame  = false;
-	$rootScope.playing = false;
-	$rootScope.score   = 0;
+    $rootScope.id          = null;
+	$rootScope.inGame      = false;
+	$rootScope.playing     = false;
+	$rootScope.score       = 0;
+    $rootScope.side        = null;
+    $rootScope.queueLength = 0;
 
 
 	$location.path('/start');
