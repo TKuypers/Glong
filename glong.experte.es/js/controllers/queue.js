@@ -2,7 +2,7 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 {
 
 	
-	$rootScope.socket = io.connect('http://192.168.0.100');//io.connect('http://screen.expertees.nl');
+	$rootScope.socket = io.connect('http://screen.expertees.nl');
 	
 	// join the queue
 	$rootScope.socket.on('inQueue', function(data)
