@@ -255,21 +255,10 @@
     position: absolute; bottom: 125px;
 }
 
-.like-facebook {
-    width: 50px; height: 50px;
-
-    left: 30%; margin-left: -25px;
-    background-image: url(../img/like.png);
-    background-repeat: no-repeat;
-    -webkit-background-size: 100%;
-    background-size: 100%;
-    background-position: center;
-    position: absolute; z-index: 4; 
-}
 .facebook {
     width: 50px; height: 50px;
 
-    left: 50%; margin-left: -25px;
+    left: 40%; margin-left: -25px;
     background-image: url(../img/facebook.png);
     background-repeat: no-repeat;
     -webkit-background-size: 100%;
@@ -280,7 +269,7 @@
 .twitter {
     width: 50px; height: 50px;
 
-    left: 70%; margin-left: -25px;
+    left: 60%; margin-left: -25px;
     background-image: url(../img/twitter.png);
     background-repeat: no-repeat;
     -webkit-background-size: 100%;
