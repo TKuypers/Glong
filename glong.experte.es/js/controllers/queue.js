@@ -45,7 +45,8 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 
 		$rootScope.$apply(function()
 		{
-			$rootScope.inGame = true;
+			$rootScope.inGame = true
+			$rootScope.side   = data.pos;		
 		});
 	});
 

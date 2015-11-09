@@ -1,18 +1,18 @@
 
 <div class="container" id="field">
 
-  <div class="wachtrij-title">GLOW PONG</div>
+  <div class="intro-title">GLOW PONG</div>
 
     <div class="wachtrij" ng-show="!inGame">
       <span class="text1">Er zijn...</span>
-      <div class="wachtrij-counter">4</div>
+      <div class="wachtrij-counter">0</div>
       <span class="text2">...wachtenden voor u</span>
     </div>
 
     <div class="wachtrij" ng-show="inGame">
       <span class="text1">U bent</span>
-      <div class="speler-counter">{{id}}</div>
-      <span class="text2">Wacht op SPELER 2</span>
+      <div class="speler-counter">{{(side == 'left') ? 'LINKS' : 'RECHTS'}}</div>
+      <span class="text2">{{(side == 'left') ? 'Wacht op rechts' : 'Wacht op links'}}</span>
     </div>
 
   <div class="logo"></div>

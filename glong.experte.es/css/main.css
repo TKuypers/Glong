@@ -56,8 +56,8 @@
 
 .text {
 
-    font-family:'Museo 700';
-    font-size: 13px;
+    font-family:Verdana, Geneva, sans-serif;
+    font-size: 15px;
     line-height: 147%;
     color: white;
 
@@ -74,20 +74,19 @@
     width: 260px; height: 80px;
     top: 50%; margin-top: -40px;
     left: 50%; margin-left: -130px;
-    background: white;
+    background: #8E1E2A;
     border-radius: 50px;
 
     text-align: center;
 
-        -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
-        -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
-        box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
+
 
     font-family:'Museo 700';
     font-size: 50px;
     line-height: 74px;
-    color: #BF2130;
+    color: white;
     z-index: 1;
+    text-decoration: none;
 }
 
 .click {
@@ -143,8 +142,8 @@
     text-align: center;
     letter-spacing: 3px;
 
-    font-family:'Museo 700';
-    font-size: 22px;
+    font-family:Verdana, Geneva, sans-serif;
+    font-size: 20px;
     line-height: 54px;
     color: white;
     font-weight: bold;
@@ -158,8 +157,8 @@
     text-align: center;
     letter-spacing: 3px;
 
-    font-family:'Museo 700';
-    font-size: 22px;
+    font-family:Verdana, Geneva, sans-serif;
+    font-size: 20px;
     line-height: 54px;
     color: white;
     font-weight: bold;
@@ -178,7 +177,7 @@
     font-size: 100px;
     line-height: 150px;
     color: white;
-    font-weight: bold; text-shadow: 2px 2px 4px #000000;
+    font-weight: bold; text-shadow: 1px 1px 3px #8E1E2A;
 }
 
 .speler-counter {
@@ -194,12 +193,12 @@
     font-size: 50px;
     line-height: 130px;
     color: white;
-    font-weight: bold; text-shadow: 2px 2px 4px #000000;
+    font-weight: bold; text-shadow: 1px 1px 3px #8E1E2A;
 }
 
 .prize {
     width: 100%;
-    top: 50%; height: 340px; margin-top: -170px;
+    top: 56%; height: 340px; margin-top: -170px;
     background-image: url(../img/prize.png);
     background-repeat: no-repeat;
     -webkit-background-size: 100%;
@@ -233,7 +232,7 @@
     font-size: 90px;
     line-height: 100px;
     color: white;
-    font-weight: bold; z-index: 3; text-shadow: 2px 2px 4px #000000;
+    font-weight: bold; z-index: 3; text-shadow: 1px 1px 3px #8E1E2A;
 }
 
 .field {
@@ -246,9 +245,9 @@
     top: 10%;
     left: 50%; margin-left:-25px;
 
-        -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
-        -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
-        box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
+        -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+        -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+        box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
 }
 
 .share {
@@ -292,21 +291,13 @@
 
 .arrow-up {
 
-    top: 30%; margin-top:-50px;
+    top: 25%; margin-top:-50px;
     transform: rotate(270deg);
-
-    animation-name: up;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
 }
 .arrow-down {
 
-    top: 70%; margin-top:-50px;
+    top: 75%; margin-top:-50px;
     transform: rotate(90deg);
-
-    animation-name: down;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
 }
 
 #slider {
@@ -314,10 +305,10 @@
 width:40px;
 height:40px;
 border-radius:50px;
-background: black;
--webkit-background: radial-gradient(circle at 10px 10px, #444444, black);
--moz-background: radial-gradient(circle at 10px 10px, #444444, black);
-background: radial-gradient(circle at 10px 10px, #444444, black);
+background: #25080B;
+-webkit-background: radial-gradient(circle at 10px 10px, #64151E, #100305);
+-moz-background: radial-gradient(circle at 10px 10px, #64151E, #100305);
+background: radial-gradient(circle at 10px 10px, #64151E, #100305);
 
     left: 50%; margin-left: -20px;
     position: fixed;
@@ -352,9 +343,9 @@ background: radial-gradient(circle at 10px 10px, #444444, black);
     position: absolute;
     top: 0px;
 
-        -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
-        -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
-        box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.6);
+        -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+        -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+        box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
 
     text-align: center;
     letter-spacing: 4px;
@@ -388,25 +379,13 @@ background: radial-gradient(circle at 10px 10px, #444444, black);
     position: absolute;
     left: 50%; margin-left:-50px;
 
-    background-image: url(../img/arrow.svg);
+    background-image: url(../img/arrow.png);
     background-repeat: no-repeat;
-    -webkit-background-size: 55%;
-    background-size: 55%;
+    -webkit-background-size: 40%;
+    background-size: 40%;
     background-position: center;
 
-    opacity: 0.18;
-}
-
-
-@keyframes up {
-    0%   {top: 35%;}
-    50%  {top: 30%;}
-    100% {top: 35%;}
-}
-@keyframes down {
-    0%   {top: 65%;}
-    50%  {top: 70%;}
-    100% {top: 65%;}
+    opacity: 0.50;
 }
 
 @keyframes click {
