@@ -16,6 +16,7 @@ app.run(function($rootScope, $location)
 	$rootScope.inGame  = false;
 	$rootScope.playing = false;
 	$rootScope.score   = 0;
+    $rootScope.side    = null;
 
 
 	$location.path('/start');
