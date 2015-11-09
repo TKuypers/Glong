@@ -1,6 +1,7 @@
 var ws281x = require('./../node_modules/rpi-ws281x-native/lib/ws281x-native');
 
-var NUM_LEDS = parseInt(process.argv[2], 10) || 10,
+
+var NUM_LEDS = parseInt(300, 10) || 10,
     pixelData = new Uint32Array(NUM_LEDS);
 
 ws281x.init(NUM_LEDS);
@@ -12,6 +13,7 @@ process.on('SIGINT', function () {
 });
 
 
+var io = null;
 
 //create starting matrix
 var matrix =
@@ -60,11 +62,11 @@ var matrix =
 //create the red & blue paddle & ball
 var redPaddle = {
     posY: 8,
-    length: 4
+    blocks: 4
 };
 var bluePaddle = {
     posY: 8,
-    length: 4
+    blocks: 4
 };
 
 var ball = {
@@ -72,41 +74,228 @@ var ball = {
     posY: 10,
     speedY: 1,
     direction: 1,
-    steps: 50,
-    speed: 100
+    steps: null,
+    speed: null
 };
 
-//explosion
-var explosion = {
-    posX: 200,
-    posY: 200,
-    time: 0,
-    up:0,down:0,left:0,right:0
-};
+
+var countdownCounter;;
+var countdown = null;
 
 var game = {
     steps: 50,
     score: 0,
-    fps: 500,
-    init: function(){var gameLoopInterval = setInterval(gameLoop, 1000/game.fps);}
+    fps: 12,
+    init: function()
+    {
+        if(gameLoopInterval != null) 
+        {
+            clearInterval(gameLoopInterval);
+            gameLoopInterval = null;
+        }
+
+        clearMatrix();
+
+
+        if(countdown == null)
+        {
+            countdown = setInterval(countdownLoop, 1000);
+        }
+
+        game.steps = 50;
+        game.score = 0;
+        game.fps = 12; 
+
+        countdownCounter = 2;
+
+        redPaddle.posY  = 8;
+        bluePaddle.posY = 8;
+
+        ball = {
+            posX: 7,
+            posY: 10,
+            speedY: 1,
+            direction: 1,
+            steps: 4,
+            speed: 4
+        };    
+
+        console.log('init');
+
+    },
+
+    end : function()
+    {
+        if(gameLoopInterval != null) 
+        {
+            clearInterval(gameLoopInterval);
+            gameLoopInterval = null;
+        }
+
+        explosion();
+
+        io.emit('game.end', {score:game.score});
+    },
 };
 
-    //starting the gameloop
-    game.init();
 
+var gameLoopInterval = null;
 
-    function gameLoop()
+var countdownLoop = function() {
+
+    updateCountdown();
+    countdownCounter--;
+
+    if (countdownCounter < 0) 
     {
-        clearMatrix();
-        updateBall();
-        updateExplosion();
-        updateCounter();
-        updateScore();
-        updateMatrix();
-        reparseMatrix();
-        one_dim_matrix();
-        translateToLED();
+        if(countdown != null)
+        {
+            clearInterval(countdown);
+            countdown = null;
+        }
+        gameLoopInterval = setInterval(gameLoop, (1/game.fps)*1000);
     }
+
+    reparseMatrix();
+    one_dim_matrix();
+    translateToLED();
+}
+
+
+
+
+
+var idleInterval = function()
+{
+    var step = 0;
+    setInterval(function()
+    {
+        if(gameLoopInterval == null && countdown == null && explosionInterval == null)
+        {
+            clearMatrix();
+
+            matrix = JSON.parse(JSON.stringify(idle[step]));
+
+            reparseMatrix();
+            one_dim_matrix();
+            translateToLED();
+
+            step = (step < (idle.length-1)) ? (step+1) : 0;
+        }
+
+    }, 200);
+};
+
+idleInterval();
+
+
+
+
+
+
+function updateCountdown()
+{
+    for (y = 0; y < 10; y++)
+    {    
+        for (x = 0; x < 6; x++)
+        {
+            if (countdownCounter == 5) { matrix[y+5][x+4] = number5[y][x]; };
+            if (countdownCounter == 4) { matrix[y+5][x+4] = number4[y][x]; };
+            if (countdownCounter == 3) { matrix[y+5][x+4] = number3[y][x]; };
+            if (countdownCounter == 2) { matrix[y+5][x+4] = number2[y][x]; };
+            if (countdownCounter == 1) { matrix[y+5][x+4] = number1[y][x]; };
+            if (countdownCounter == 0) { matrix[y+5][x+4] = number0[y][x]; };
+        }
+    }
+}
+
+
+var explosionInterval = null;
+var explosionCounter  = 10;
+
+var explosion = function()
+{  
+    explosionCounter = 10;
+    explosionInterval = setInterval(explosionLoop, 200);
+};
+
+var explosionStatus  = 0;
+
+function explosionLoop()
+{
+    clearMatrix();
+
+    if (explosionStatus == 0)
+    {
+        for (y = 0; y < 20; y++)
+        {    
+            for (x = 0; x < 15; x++)
+            {
+                if(y % 2 == true)
+                {
+                    matrix[y][x] = 4;
+                }
+            }
+        }
+        explosionStatus = 1;        
+    }
+    else if (explosionStatus == 1)
+    {
+        for (y = 0; y < 20; y++)
+        {    
+            for (x = 0; x < 15; x++)
+            {
+                if(y % 2 == true)
+                {
+                    matrix[y][x] = 1;
+                }
+            }
+        }
+        explosionStatus = 0;        
+    }
+
+    explosionCounter--;
+
+    if (explosionCounter <= 0) 
+    {
+        for (y = 0; y < 20; y++)
+        {    
+            for (x = 0; x < 15; x++)
+            {
+                matrix[y][x] = 0;
+            }
+        }
+
+        if(explosionInterval != null)
+        {
+            clearInterval(explosionInterval);
+            explosionInterval = null;
+        }
+    }
+
+    reparseMatrix();
+    one_dim_matrix();
+    translateToLED();
+}
+
+
+
+
+//starting the gameloop
+
+function gameLoop()
+{
+    clearMatrix();
+    updateBall();
+    updateCounter(game.score);
+    updateScore();
+    updateMatrix();
+    reparseMatrix();
+    one_dim_matrix();
+    translateToLED();
+}
+
+
 
 function translateToLED()
 {
@@ -121,43 +310,58 @@ function translateToLED()
 
 function updateBall()
 {
-    game.steps--;
-    if (game.steps==0)
+    ball.steps--;
+    if (ball.steps == 0)
     {
         moveBall();
-        game.steps=10;
+        ball.steps = ball.speed;
     }
 }
 
+
+var addToScore = function()
+{
+    game.score++;
+
+    if(game.score > 0 && game.score % 5 == 0)
+    {
+        if(ball.speed > 1)
+        {
+            ball.speed--;
+        }
+    }
+}
+
+
 function moveBall()
 {
-       
-    if ( ball.posX == 1 && ball.posY >= redPaddle.posY && ball.posY < redPaddle.posY+redPaddle.length )
+    if ( ball.posX == 1 && ball.posY >= redPaddle.posY && ball.posY < redPaddle.posY+redPaddle.blocks )
     {
         ball.direction = 1;
         if (ball.posY == redPaddle.posY) {
             ball.speedY = -1;
         }
-        else if (ball.posY == redPaddle.posY + (redPaddle.length-1)) {
+        else if (ball.posY == redPaddle.posY + (redPaddle.blocks-1)) {
             ball.speedY = 1;
         }
 
-        game.score++;
-        ball.speed = ball.speed - 2;
+        addToScore();
     }
-    if ( ball.posX == 13 && ball.posY >= bluePaddle.posY && ball.posY < bluePaddle.posY+bluePaddle.length  )
+    if ( ball.posX == 13 && ball.posY >= bluePaddle.posY && ball.posY < bluePaddle.posY+bluePaddle.blocks  )
     {
         ball.direction = 0;
         if (ball.posY == bluePaddle.posY) {
             ball.speedY = -1;
         }
-        else if (ball.posY == bluePaddle.posY + (bluePaddle.length-1)) {
+        else if (ball.posY == bluePaddle.posY + (bluePaddle.blocks-1)) {
             ball.speedY = 1;
         }
 
-        game.score++;
-        ball.speed = ball.speed - 2;
+        addToScore();
     }
+
+
+
   
     if ( ball.direction == 1 )
     {
@@ -170,26 +374,13 @@ function moveBall()
     
     ball.posY = ball.posY + ball.speedY;
 
-    if ( ball.posX == 0 )
+
+    if ( ball.posX < 0 || ball.posX > 14)
     {
-        explosion.posX = 0;
-        explosion.posY = ball.posY;
-        explosion.up = explosion.posY;
-        explosion.down = explosion.posY;
-        explosion.left = ball.posX;
-        explosion.right = ball.posX;
-        explosion.time = 4;
+        game.end();
+        console.log('you dead');
     }
-    if ( ball.posX == 14 )
-    {
-        explosion.posX = 14;
-        explosion.posY = ball.posY;
-        explosion.up = explosion.posY;
-        explosion.down = explosion.posY;
-        explosion.left = ball.posX+1;
-        explosion.right = ball.posX+1;
-        explosion.time = 4;
-    }
+
     
     if ( ball.posY <= 0 || ball.posY >= 19)
     {
@@ -204,30 +395,6 @@ function moveBall()
     }
 }
 
-function updateExplosion() {
-    game.steps--;
-    if (game.steps==0)
-    {
-        if (explosion.time > 0)
-        {
-            explosion.up--;
-            explosion.down++;
-            explosion.left--;
-            explosion.right++;
-
-            explosion.time--;
-        }
-        if (explosion.time == 0)
-        {
-            explosion.up = -1;
-            explosion.down = -1;
-            explosion.left = -1;
-            explosion.right = -1;
-        }
-
-        game.steps = 50;
-    }
-}
 
 function clearMatrix()
 {
@@ -249,20 +416,12 @@ function updateMatrix()
     }
     
     //update paddles
-    for (y = 0; y < 5; y++)
+    for (y = 0; y < redPaddle.blocks; y++)
     {
         matrix[redPaddle.posY + y][0] = 1;
         matrix[bluePaddle.posY + y][14] = 2;
     }
     
-    //update explosion
-    if (explosion.time > 0)
-    {
-        matrix[explosion.up][explosion.posX] = 4;
-        matrix[explosion.down][explosion.posX] = 4;
-        matrix[explosion.posY][explosion.left] = 4;
-        matrix[explosion.posY][explosion.right] = 4;
-    }
 }
 
 function reparseMatrix()
@@ -330,7 +489,11 @@ function one_dim_matrix()
             one_dim.push(inversed[14-y][x]); 
         }
     }
+}
 
+
+var counter1;
+var counter2;
 
 function updateCounter(number)
 {
@@ -438,6 +601,7 @@ function updateCounter(number)
     };
 
 }
+
 
 function updateScore()
 {
@@ -573,8 +737,104 @@ function updateScore()
 
 
 
-module.exports = 
-{
-    left: redPaddle,
-    right: bluePaddle
-};
+
+
+var idle = [
+    [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,0,0,3,0,0,0,0,3,0],
+    [0,3,0,3,3,3,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,3,3,3,3,3,3,3,0,0,0,0],
+    [0,0,0,0,0,3,3,3,3,3,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+
+    [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,0,0,3,0,0,0,0,3,0],
+    [0,3,0,3,3,3,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,3,3,3,3,3,3,3,0,0,0,0],
+    [0,0,0,0,0,3,3,3,3,3,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+
+    [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,0,0,3,0,0,0,0,3,0],
+    [0,3,0,3,3,3,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,3,3,3,3,3,3,3,0,0,0,0],
+    [0,0,0,0,0,3,3,3,3,3,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+
+    [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,0,0,3,0,0,0,0,3,0],
+    [0,3,0,3,3,3,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,3,0,0,0,0,3,0,3,0,0,0,0,3,0],
+    [0,0,3,3,3,3,0,0,0,3,3,3,3,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,3,3,3,3,3,3,3,0,0,0,0],
+    [0,0,0,0,0,3,3,3,3,3,0,0,0,0,0],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+];
+
+
+
+
+module.exports = function(param)
+{   
+    io = param;
+
+    return {
+        game   : game,
+        left   : redPaddle,
+        right  : bluePaddle
+    }
+}

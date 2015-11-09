@@ -1,69 +1,11 @@
-app.controller('PongCtrl', function($scope, $rootScope) 
+app.controller('PongCtrl', function($scope, $rootScope, $location) 
 {
 
-	
-	$scope.id      = null;
-	$scope.inGame  = false;
-
-	$scope.playing = false;
-
-
-
-	console.log('init');
-
-	var socket = io.connect('http://screen.expertees.nl');
-	
-	// join the queue
-	socket.on('inQueue', function(data)
-	{
-		$scope.$apply(function()
-		{
-			$scope.id = data.id;
-		});
-	});
-
-
-	// check if we joined a game
-	socket.on('gameJoined', function(data)
-	{
-		$scope.$apply(function()
-		{
-			$scope.inGame = true;
-		});
-	});
-
-
-
-	// check if the game will start
-	socket.on('gamePrepare', function(data)
-	{
-
-	});
-
-
-
-	// start the game
-	socket.on('gameStart', function(data)
-	{
-		console.log('gamestart');
-
-		$scope.$apply(function()
-		{
-			$scope.playing = true;
-		});
-	});
 
 
 
 
-	// start the game
-	socket.on('gameStop', function(data)
-	{
-		$scope.$apply(function()
-		{
-			$scope.playing = false;
-		});
-	});
+
 
 
 
@@ -71,17 +13,13 @@ app.controller('PongCtrl', function($scope, $rootScope)
 	// mouse move
 	$scope.updatePaddle = function(pos)
 	{
-		if($scope.playing)
+		if($rootScope.playing)
 		{
 			var data = {position:pos};
 
-			//console.log(data);
-
-			socket.emit('updatePaddle', data);
+			$rootScope.socket.emit('updatePaddle', data);
 		}
 	};
-
-
 
 
 
@@ -115,7 +53,7 @@ app.controller('PongCtrl', function($scope, $rootScope)
 
         //get the paddle position
         var sliderPercentage = Math.round( (($scope.sliderPosition-$scope.fieldStart)/($scope.fieldEnd-$scope.fieldStart)*100) );
-        $scope.paddlePosition = Math.round( (sliderPercentage/100)*15 ) + 1;
+        $scope.paddlePosition = Math.round( (sliderPercentage/100)*16);
         
 
         if($scope.sendPaddlePosition !== $scope.paddlePosition) 
@@ -145,9 +83,6 @@ app.controller('PongCtrl', function($scope, $rootScope)
 	        || document.documentElement.clientHeight
 	        || document.body.clientHeight;
 	    
-	    var container = document.getElementById("field");
-	    container.style.width = width + "px";
-	    container.style.height = height + "px";
 
 	    //get touchPad height and sliderheight
 	    $scope.touchPadHeight = height - 170;
@@ -159,9 +94,8 @@ app.controller('PongCtrl', function($scope, $rootScope)
 
 
 	$scope.setSlider = function() 
-	{
-	    $scope.sliderPosition = $scope.fieldStart;
-
+	{	   
+		$scope.sliderPosition = $scope.fieldStart;
 	    $scope.positionSlider();
 	}
 
@@ -176,8 +110,10 @@ app.controller('PongCtrl', function($scope, $rootScope)
 	   	$scope.setSlider();
 	};
 
-	
+
 	$scope.setControls();
+
+
 
 
 

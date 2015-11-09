@@ -328,6 +328,11 @@ background: radial-gradient(circle at 10px 10px, #444444, black);
 .container {
     background-color: #BF2130;
     display: block;
+    overflow:hidden;
+    position:absolute;
+    top:0px;
+    bottom:0px;
+    width:100%;
 }
 
 

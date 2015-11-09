@@ -2,11 +2,10 @@ var app    = require('express')();
 var server = require('http').Server(app);
 var io     = require('socket.io')(server);
 
-var glong  = require('./glong.js');
-
-
 var events       = require('events');
 var eventEmitter = new events.EventEmitter();
+
+var glong  = require('./glong.js')(eventEmitter);
 
 var helpers = require('./functions/helpers.js');
 
@@ -27,7 +26,6 @@ var game =
 
 	update : function()
 	{
-		console.log('update');
 
 		if(!game.complete)
 		{
@@ -54,21 +52,31 @@ var game =
 		// game can start
 		io.to('game').emit('gamePrepare');
 
-		// countdown to the game
-		setTimeout(function()
-		{
-			game.playing = true;
-			
-			io.to('game').emit('gameStart');
+		game.playing = true;
+		
+		io.to('game').emit('gameStart');
 
-		}, 3000);
+		// init the glong game
+		glong.game.init();
+	},
+
+
+	end : function(score)
+	{
+		game.left     = null;
+		game.right    = null;
+
+		game.complete = false;
+		game.playing  = false;
+
+		io.to('game').emit('gameEnd', {score:score});
+
+		game.update();
 	},
 
 
 	stop : function()
 	{
-		console.log('Game stopped');
-
 		io.to('game').emit('gameStop');
 
 		game.complete = false;
@@ -112,6 +120,8 @@ var game =
 		game.stop();
 		game.update();
 	},
+
+
 
 
 	playerAdded : function(id, pos)
@@ -158,20 +168,29 @@ var queue =
 
 	updateQueue :  function()
 	{
-		//console.log(queue.ids);
+		console.log(queue.ids);
 	},
 };
 
 
 
 
+// end the game
+var endHandler = function(data)
+{
+	game.end(data.score);
+};
+
+eventEmitter.addListener('game.end', endHandler);
+
 
 // on connection
 io.on('connection', function (socket) 
 {
-	var id     = helpers.makeId(5);
-	var pos    = null;
-	var inGame = false;
+	var id        = helpers.makeId(5);
+	var pos       = null;
+	var inGame    = false;
+	var gameEnded = false;
 
 	// add to the queue
 	queue.addToQueue(id);
@@ -182,6 +201,8 @@ io.on('connection', function (socket)
 	{
 		if(id == data.id)
 		{
+			console.log('joined game:'+id);
+
 			inGame = true;
 			pos    = data.pos;
 
@@ -190,12 +211,11 @@ io.on('connection', function (socket)
 		}
 	};
 
-	eventEmitter.once('game.playerAdded', addedHandler);
+	eventEmitter.addListener('game.playerAdded', addedHandler);
+
 
 	// update the game
 	game.update();
-
-
 
 	// update the paddle
 	socket.on('updatePaddle', function(data)
@@ -204,6 +224,15 @@ io.on('connection', function (socket)
 		glong[pos].posY = data.position;
 	});
 
+
+	// disconnect of the game has ended
+	socket.on('gameEnd', function()
+	{
+		console.log('disconnect:'+id);
+		gameEnded = true;
+
+		socket.disconnect();
+	});
 
 	/*
 	// join the room
@@ -214,14 +243,21 @@ io.on('connection', function (socket)
 	// disconnect
 	socket.on('disconnect', function() 
 	{
+		eventEmitter.removeListener('game.playerAdded', addedHandler);
+
 		if(!inGame)
 		{
 			queue.removeFromQueue(id);
 		}
 		else
 		{
-			game.playerStopped(id);
+			if(!gameEnded)
+			{
+				game.playerStopped(id);
+			}
 			socket.leave('game');
+
+			console.log('left room:'+id);
 		}
 
 	});

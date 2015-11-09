@@ -9,6 +9,18 @@ app.run(function($rootScope, $location)
 
     // disable touchmove
     document.addEventListener('touchmove', function(e){e.preventDefault();}, false);
+
+
+
+    $rootScope.id      = null;
+	$rootScope.inGame  = false;
+	$rootScope.playing = false;
+	$rootScope.score   = 0;
+
+
+	$location.path('/start');
+
+
 });
 
 
