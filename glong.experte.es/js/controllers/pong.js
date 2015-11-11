@@ -3,7 +3,20 @@ app.controller('PongCtrl', function($scope, $rootScope, $location)
 
 
 
+	// check if we have audio
+	if(Modernizr.audio)
+	{
+		var blip = new Audio("assets/blip.wav");
+	}
 
+	// join the queue
+	$rootScope.socket.on('gameBloop', function(data)
+	{
+		if(Modernizr.audio)
+		{
+			blip.play();
+		}
+	});
 
 
 

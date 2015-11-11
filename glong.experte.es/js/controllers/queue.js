@@ -1,8 +1,8 @@
-app.controller('QueueCtrl', function($scope, $rootScope, $location) 
+app.controller('QueueCtrl', function($scope, $rootScope, $location, games) 
 {
 
 	
-	$rootScope.socket = io.connect('http://192.168.0.100');//io.connect('http://screen.expertees.nl');
+	$rootScope.socket = io.connect('http://screen.expertees.nl');
 	
 	// join the queue
 	$rootScope.socket.on('inQueue', function(data)
@@ -32,8 +32,6 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 				}
 				$rootScope.queueLength++;
 			};
-
-			console.log($rootScope.queueLength);
 		});
 	});
 
@@ -70,6 +68,9 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 
 		$rootScope.$apply(function()
 		{
+			// add to counter
+			games.postCounter({player:$rootScope.id});
+
 			$rootScope.playing = true;
 		});
 	});
@@ -94,6 +95,9 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 
 		$rootScope.$apply(function()
 		{
+			// add to counter
+			games.postCounter({player:$rootScope.id, score:data.score});
+
 			$rootScope.score = data.score;
 			$location.path('/score');
 
