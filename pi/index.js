@@ -12,6 +12,7 @@ var helpers = require('./functions/helpers.js');
 server.listen(80);
 
 
+console.log('init:'+new Date());
 
 
 
@@ -38,7 +39,11 @@ var game =
 			// check if we have enough platers
 			if(game.left != null && game.right != null)
 			{
-				game.start();
+				// timeout
+				setTimeout(function()
+				{
+					game.start();
+				}, 500);
 			}
 		}
 	},
@@ -54,10 +59,13 @@ var game =
 
 		game.playing = true;
 		
-		io.to('game').emit('gameStart');
-
-		// init the glong game
-		glong.game.init();
+		// timeout
+		setTimeout(function()
+		{
+			io.to('game').emit('gameStart');
+			// init the glong game
+			glong.game.init();
+		}, 500);
 	},
 
 
@@ -77,6 +85,8 @@ var game =
 
 	stop : function()
 	{
+		glong.game.pause();
+
 		io.to('game').emit('gameStop');
 
 		game.complete = false;
@@ -168,7 +178,7 @@ var queue =
 
 	updateQueue :  function()
 	{
-		console.log(queue.ids);
+		io.emit('queueUpdate', {queue: queue.ids});
 	},
 };
 
@@ -182,6 +192,17 @@ var endHandler = function(data)
 };
 
 eventEmitter.addListener('game.end', endHandler);
+
+
+
+// end the game
+var bloopHandler = function(data)
+{
+	io.to('game').emit('gameBloop');
+};
+
+eventEmitter.addListener('game.bloop', bloopHandler);
+
 
 
 // on connection
@@ -207,7 +228,7 @@ io.on('connection', function (socket)
 			pos    = data.pos;
 
 			socket.join('game');
-			socket.emit('gameJoined');
+			socket.emit('gameJoined', {pos:pos});
 		}
 	};
 
@@ -221,7 +242,10 @@ io.on('connection', function (socket)
 	socket.on('updatePaddle', function(data)
 	{
 		//console.log(pos+' updated:'+data.position);
-		glong[pos].posY = data.position;
+		if(glong[pos] != undefined)
+		{ 
+			glong[pos].posY = data.position;
+		}
 	});
 
 

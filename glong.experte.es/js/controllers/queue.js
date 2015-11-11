@@ -1,4 +1,4 @@
-app.controller('QueueCtrl', function($scope, $rootScope, $location) 
+app.controller('QueueCtrl', function($scope, $rootScope, $location, games) 
 {
 
 	
@@ -10,6 +10,28 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 		$rootScope.$apply(function()
 		{
 			$rootScope.id = data.id;
+		});
+	});
+
+
+	// join the queue
+	$rootScope.socket.on('queueUpdate', function(data)
+	{
+		$rootScope.$apply(function()
+		{
+			$rootScope.queueLength = 0;
+
+			var ids = data.queue;
+
+			for(var i in ids)
+			{
+				var c = ids[i];
+				if(c == $rootScope.id)
+				{
+					break;
+				}
+				$rootScope.queueLength++;
+			};
 		});
 	});
 
@@ -46,6 +68,9 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 
 		$rootScope.$apply(function()
 		{
+			// add to counter
+			games.postCounter({player:$rootScope.id});
+
 			$rootScope.playing = true;
 		});
 	});
@@ -70,6 +95,9 @@ app.controller('QueueCtrl', function($scope, $rootScope, $location)
 
 		$rootScope.$apply(function()
 		{
+			// add to counter
+			games.postCounter({player:$rootScope.id, score:data.score});
+
 			$rootScope.score = data.score;
 			$location.path('/score');
 
