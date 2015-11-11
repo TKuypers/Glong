@@ -399,7 +399,7 @@ function moveBall()
     if ( ball.posX < 0 || ball.posX > 14)
     {
         game.end();
-        console.log('you dead'+game.score);
+        console.log('game over:'+game.score);
     }
 
     
