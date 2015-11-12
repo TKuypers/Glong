@@ -11,6 +11,7 @@ app.run(function($rootScope, $location)
     document.addEventListener('touchmove', function(e){e.preventDefault();}, false);
 
 
+    $rootScope.title       = "GLOW PONG";
 
     $rootScope.id          = null;
 	$rootScope.inGame      = false;
@@ -19,6 +20,8 @@ app.run(function($rootScope, $location)
     $rootScope.side        = null;
     $rootScope.queueLength = 0;
 
+
+    $rootScope.page        = '';
 
 	$location.path('/start');
 

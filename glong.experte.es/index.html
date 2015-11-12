@@ -19,7 +19,16 @@
     </head>
     <body id="glong" ng-cloak>
 
-        <main class="content" ng-view></main>
+      <div class="container" id="field">
+
+        <div class="intro-title">{{title}}</div>
+
+        <main class="{{page}}" ng-view></main>
+
+        <div class="logo"></div>
+
+      </div>
+
     
         <script type="text/javascript" src="vendor/hammerjs/hammer.min.js"></script>
 

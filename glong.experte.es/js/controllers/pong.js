@@ -1,6 +1,8 @@
 app.controller('PongCtrl', function($scope, $rootScope, $location) 
 {
 
+	$rootScope.page        = 'pong';
+	$rootScope.title = ($rootScope.side == 'left') ? 'LINKS' : 'RECHTS';
 
 
 	// check if we have audio

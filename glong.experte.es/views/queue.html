@@ -1,20 +1,12 @@
 
-<div class="container" id="field">
-
-  <div class="intro-title">GLOW PONG</div>
-
     <div class="wachtrij" ng-show="!inGame">
-      <span class="text1">Er zijn...</span>
+      <p>Er zijn</p>
       <div class="wachtrij-counter">{{queueLength}}</div>
-      <span class="text2">...wachtenden voor u</span>
+      <p>wachtenden voor u</p>
     </div>
 
     <div class="wachtrij" ng-show="inGame">
-      <span class="text1">U bent</span>
+      <p>U bent speler 1</p>
       <div class="speler-counter">{{(side == 'left') ? 'LINKS' : 'RECHTS'}}</div>
-      <span class="text2">{{(side == 'left') ? 'Wacht op rechts' : 'Wacht op links'}}</span>
+      <p>{{(side == 'left') ? 'Wacht op speler 2' : 'Wacht op speler 1'}}</p>
     </div>
-
-  <div class="logo"></div>
-
-</div>

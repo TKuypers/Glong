@@ -1,7 +1,8 @@
 app.controller('QueueCtrl', function($scope, $rootScope, $location, games) 
 {
 
-	
+	$rootScope.page        = 'queue';
+    $rootScope.title       = "GLOW PONG";
 	$rootScope.socket = io.connect('http://screen.expertees.nl');
 	
 	// join the queue
