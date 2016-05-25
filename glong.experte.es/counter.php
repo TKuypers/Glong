@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: OPTIONS, GET, POST");
 header("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
 
 
-$link = mysqli_connect("localhost", "pong_nl", "nglunmt0");
+$link = mysqli_connect("localhost", "", "");
 mysqli_select_db($link, 'pong');
 
 if (mysqli_connect_errno())
